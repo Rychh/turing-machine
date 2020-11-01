@@ -28,6 +28,15 @@ class Situation:
     def end_of_calculations(self) -> bool:
         return self.state in FINAL_STATES
 
+    def __str__(self):
+        return "Situ: " + " St:" +str(self.state) + " Lt:" + str(self.letter)
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return self.state == other.state and self.letter == other.letter
+
 
 @dataclass
 class Move:
@@ -38,7 +47,6 @@ class Move:
     def accepting_word(self) -> bool:
         return self.state == State("accept")
 
-    @staticmethod
     def shift(self) -> int:
         if self.direction == DIR_RIGHT:
             return 1
@@ -46,6 +54,15 @@ class Move:
             return -1
         else:
             return 0
+
+    def __str__(self):
+        return "Move:" + " St:" + str(self.state) + " Lt:"+ str(self.letter) + "Dr:" + str(self.direction)
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return self.state == other.state and self.letter == other.letter and self.direction == other.direction
 
 
 @dataclass  # todo czy to potrzebne
@@ -79,7 +96,9 @@ class Tape:
 
 
 def simulate_turing_machine(current_situation: Situation, tape: Tape,
-                            turing_machine: Dict[Situation, List[Move]]) -> State:
+                            turing_machine: Dict[Situation, List[Move]], debug: bool = False) -> State:
+    if debug:
+        print(tape, " ", current_situation)
     if current_situation.state in FINAL_STATES:
         return current_situation.state
     elif current_situation not in turing_machine:
@@ -88,7 +107,7 @@ def simulate_turing_machine(current_situation: Situation, tape: Tape,
         for current_move in turing_machine[current_situation]:
             new_tape = tape.copy()
             new_situation = new_tape.next_situation(current_move=current_move)
-            final_state = simulate_turing_machine(new_situation, new_tape, turing_machine)
+            final_state = simulate_turing_machine(new_situation, new_tape, turing_machine, debug)
             if final_state == STATE_ACCEPT:
                 return STATE_ACCEPT
         return STATE_REJECT
@@ -107,7 +126,7 @@ def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
             currently_seen_letter: Letter = Letter(int(words[1]))
             target_state: State = State(words[2])
             letter_to_write: Letter = Letter(int(words[3]))
-            direction: Direction = Direction(words[4])
+            direction: Direction = Direction(words[4][0])
             # todo checkall_direction
             situation = Situation(current_state, currently_seen_letter)
             move = Move(target_state, letter_to_write, direction)
@@ -124,23 +143,22 @@ def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
 
 
 def main():
+    debug = True
     try:
         file_name: str = sys.argv[1]
         limit_of_moves: int = int(sys.argv[2])
 
-        # assert sys.argv == 3
-        # assert os.path.isfile(file_name)
-        #
-        # input_word = input()
-        # assert input_word.isdecimal()
-        file_name = "palindrome.tm"
-        input_word = "11222211"
+        assert len(sys.argv) == 3
+        assert os.path.isfile(file_name)
+
+        input_word = input()
+
+        assert input_word.isdecimal()
 
         inner_tape: List[Letter] = [Letter(int(letter)) for letter in input_word]
         tape: Tape = Tape(inner_tape, limit_of_moves)
-
         turing_machine = generate_turing_machine(file_name)
-        final_state = simulate_turing_machine(tape.get_initial_situation(), tape, turing_machine)
+        final_state = simulate_turing_machine(tape.get_initial_situation(), tape, turing_machine, debug)
 
         if final_state == STATE_ACCEPT:
             print("YES\n")
