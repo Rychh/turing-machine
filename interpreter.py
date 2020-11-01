@@ -67,7 +67,7 @@ class Move:
         return self.state == other.state and self.letter == other.letter and self.direction == other.direction
 
 
-@dataclass  # todo czy to potrzebne
+@dataclass
 class Tape:
     tape: List[Letter]
     limit_of_moves: int
@@ -106,8 +106,9 @@ def simulate_turing_machine(current_situation: Situation, tape: Tape,
     elif current_situation not in turing_machine:
         return STATE_REJECT
     else:
+        deterministic_move: bool = len(turing_machine[current_situation]) == 1
         for current_move in turing_machine[current_situation]:
-            new_tape = tape.copy()
+            new_tape = tape if deterministic_move else tape.copy()
             new_situation = new_tape.next_situation(current_move=current_move)
             final_state = simulate_turing_machine(new_situation, new_tape, turing_machine)
             if final_state == STATE_ACCEPT:
@@ -122,14 +123,13 @@ def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
     try:
         for instruction in instructions:
             words = instruction.split(" ")
-
-            # todo add try
             current_state: State = State(words[0])
             currently_seen_letter: Letter = Letter(int(words[1]))
             target_state: State = State(words[2])
             letter_to_write: Letter = Letter(int(words[3]))
             direction: Direction = Direction(words[4][0])
-            # todo checkall_direction
+
+            assert direction in DIRS
             situation = Situation(current_state, currently_seen_letter)
             move = Move(target_state, letter_to_write, direction)
 
