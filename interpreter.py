@@ -4,6 +4,8 @@ from typing import NewType, Dict, List
 from dataclasses import dataclass
 import os
 
+DEBUG = False
+
 UserId = NewType('UserId', int)
 Letter = NewType('Letter', int)
 State = NewType('State', str)
@@ -29,7 +31,7 @@ class Situation:
         return self.state in FINAL_STATES
 
     def __str__(self):
-        return "Situ: " + " St:" +str(self.state) + " Lt:" + str(self.letter)
+        return "Situ: " + " St:" + str(self.state) + " Lt:" + str(self.letter)
 
     def __hash__(self):
         return hash(str(self))
@@ -56,7 +58,7 @@ class Move:
             return 0
 
     def __str__(self):
-        return "Move:" + " St:" + str(self.state) + " Lt:"+ str(self.letter) + "Dr:" + str(self.direction)
+        return "Move:" + " St:" + str(self.state) + " Lt:" + str(self.letter) + "Dr:" + str(self.direction)
 
     def __hash__(self):
         return hash(str(self))
@@ -96,8 +98,8 @@ class Tape:
 
 
 def simulate_turing_machine(current_situation: Situation, tape: Tape,
-                            turing_machine: Dict[Situation, List[Move]], debug: bool = False) -> State:
-    if debug:
+                            turing_machine: Dict[Situation, List[Move]]) -> State:
+    if DEBUG:
         print(tape, " ", current_situation)
     if current_situation.state in FINAL_STATES:
         return current_situation.state
@@ -107,7 +109,7 @@ def simulate_turing_machine(current_situation: Situation, tape: Tape,
         for current_move in turing_machine[current_situation]:
             new_tape = tape.copy()
             new_situation = new_tape.next_situation(current_move=current_move)
-            final_state = simulate_turing_machine(new_situation, new_tape, turing_machine, debug)
+            final_state = simulate_turing_machine(new_situation, new_tape, turing_machine)
             if final_state == STATE_ACCEPT:
                 return STATE_ACCEPT
         return STATE_REJECT
@@ -143,7 +145,6 @@ def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
 
 
 def main():
-    debug = True
     try:
         file_name: str = sys.argv[1]
         limit_of_moves: int = int(sys.argv[2])
@@ -158,12 +159,12 @@ def main():
         inner_tape: List[Letter] = [Letter(int(letter)) for letter in input_word]
         tape: Tape = Tape(inner_tape, limit_of_moves)
         turing_machine = generate_turing_machine(file_name)
-        final_state = simulate_turing_machine(tape.get_initial_situation(), tape, turing_machine, debug)
+        final_state = simulate_turing_machine(tape.get_initial_situation(), tape, turing_machine)
 
         if final_state == STATE_ACCEPT:
-            print("YES\n")
+            print("YES")
         else:
-            print("NO\n")
+            print("NO")
 
     except Exception as e:
         print("Error: Wrong arguments", file=sys.stderr)
