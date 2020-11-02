@@ -4,7 +4,8 @@ from typing import NewType, Dict, List
 from dataclasses import dataclass
 import os
 
-DEBUG = False
+DEBUG = True
+sys.setrecursionlimit(251000)
 
 Letter = NewType('Letter', int)
 State = NewType('State', str)

@@ -1,4 +1,3 @@
-import argparse
 import sys
 from typing import NewType, Dict, List
 from dataclasses import dataclass
@@ -57,15 +56,15 @@ class Move2Tape:
 
 
 new_instructions_forms: List[str] = [
-    "{state}::go_right_to_2nd_{lit_02}_{dir_LRS} X {state}::go_right_to_2nd_{lit_02}_{dir_LRS}  X R",
+    "{state}::go_right_to_2nd_{lit_02}_{dir_LRS} {lit_08} {state}::go_right_to_2nd_{lit_02}_{dir_LRS} {lit_08} R",
     "{state}::go_right_to_2nd_{lit_02}_{dir_LRS} 9 {state}::go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 R",
     "{state}::go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 {state}::go_left_to_2nd_{lit_02}_{dir_LRS} 9 L",
 
     "{state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} {state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} L",
     "{state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_68} {state}::move_2nd_{dir_LRS} {lit_02} {dir_LRS}",
-    "{state}::move_2nd_{dir_LRS} {lit_05} {state}::2nd {lit_05} {dir_LRS}",
+    "{state}::move_2nd_{dir_LRS} {lit_05} {state}::set_2nd {lit_05} {dir_LRS}",
 
-    "{state}::2nd {lit_02} {state}::go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
+    "{state}::set_2nd {lit_02} {state}::go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
 
     "{state}::go_right_to_1st_head_{lit_02_plus_6} {lit_05} {state}::go_right_to_1st_head_{lit_02_plus_6} {lit_05} R",
     "{state}::go_right_to_1st_head_{lit_02_plus_6} 9 {state}::go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 R",
@@ -73,8 +72,8 @@ new_instructions_forms: List[str] = [
 
     "{state}::go_left_to_1st_head_{lit_02_plus_6} {lit_02_68} {state}::go_left_to_1st_head_{lit_02_plus_6} {lit_02_68} L",
 
-    "{state}::move_1st_{dir_LRS}_2nd_{lit_02}_{dir_LRS} {lit_02_68} {state}::1st_{lit_02}_{dir_LRS} {lit_02_68} {dir_LRS}",
-    "{state}::1st_{lit_02}_{dir_LRS} X {state}::{state}::go_right_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus3} S",
+    "{state}::move_1st_{dir_LRS}_2nd_{lit_02}_{dir_LRSp} {lit_02_68} {state}::set_1st_{lit_02}_{dir_LRSp} {lit_02_68} {dir_LRS}",
+    "{state}::set_1st_{lit_02p}_{dir_LRS} {lit_02} {state}::go_right_to_2nd_{lit_02p}_{dir_LRS} {lit_02_plus_3} S",
 ]
 
 
@@ -111,9 +110,9 @@ def generate_turing_machine(file_name: str) -> Dict[Situation2Tape, List[Move2Ta
 def get_all_states(turing_machine: Dict[Situation2Tape, List[Move2Tape]]) -> List[State]:
     result: List[State] = []
     for situation in turing_machine.keys():
-        result += situation.state
+        result.append(situation.state)
         for move in turing_machine[situation]:
-            result += move.state
+            result.append(move.state)
 
     result = list(set(result))
     result.sort()
@@ -136,16 +135,21 @@ def main():
             format_arguments['state'] = state
             for lit_02_value in range(3):
                 format_arguments['lit_02'] = lit_02_value
+                format_arguments['lit_02_plus_3'] = Letter(lit_02_value + 3)
                 format_arguments['lit_02_plus_6'] = Letter(lit_02_value + 6)
-                for lit_05_value in range(6):
-                    format_arguments['lit_05'] = Letter(lit_05_value)
-                    format_arguments['lit_02_68'] = \
-                        Letter(lit_05_value) if lit_05_value <= 2 else Letter(8 - lit_05_value)
+                for lit_08_value in range(9):
+                    format_arguments['lit_05'] = Letter(lit_08_value) if lit_08_value <= 5 else Letter(0)
+                    format_arguments['lit_02_68'] = Letter(
+                        lit_08_value) if lit_08_value <= 2 or 6 <= lit_08_value else Letter(0)
+                    format_arguments['lit_08'] = Letter(lit_08_value)
+                    format_arguments['lit_02p'] = Letter(lit_08_value) if lit_08_value <= 2 else Letter(0)
                     for lit_68_value in range(6, 9):
                         format_arguments['lit_68'] = Letter(lit_68_value)
                         for dir_LRS in DIRS:
                             format_arguments['dir_LRS'] = dir_LRS
-                            form_x_state.append(state + "::" + form.format(**format_arguments))
+                            for dir_LRSp in DIRS:
+                                format_arguments['dir_LRSp'] = dir_LRSp
+                                form_x_state.append(form.format(**format_arguments))
             form_x_state = list(set(form_x_state))
             form_x_state.sort()
             new_instructions = new_instructions + form_x_state
@@ -160,19 +164,58 @@ def main():
                                 'out_let2': move.letter_2,
                                 'dir1': move.direction_1,
                                 'dir2': move.direction_2,
-                                'let1_plus_3': situation.letter_2 + 3,
+                                'let1_plus_3': situation.letter_1 + 3,
                                 'let2_plus_6': situation.letter_2 + 6,
                                 }
 
             normal_state_transition = "{state}::go_left_to_1st_head_{let2_plus_6} {let1_plus_3} " \
-                                      "{target_state}::move_1st_{dir1}_2nd_{out_let2}_{dir1} {out_let1} {dir2}"
+                                      "{target_state}::move_1st_{dir1}_2nd_{out_let2}_{dir2} {out_let1} {dir1}"
 
             final_state_transition = "{state}::go_left_to_1st_head_{let2_plus_6} {let1_plus_3} " \
-                                     "{target_state} {out_let1} {dir2}"
+                                     "{target_state} {out_let1} {dir1}"
 
-            state_transition = final_state_transition if move.state in FINAL_STATES else normal_state_transition
+            if move.state in FINAL_STATES:
+                state_transition = final_state_transition
+            else:
+                state_transition = normal_state_transition
 
             new_instructions.append(state_transition.format(**format_arguments))
+    new_instructions.append("start_part_2 4 start::go_left_to_1st_head_6 4 S")
+    new_instructions.append("start_part_2 5 start::go_left_to_1st_head_6 5 S")
+
+    # print(turing_machine)
+    # print(all_states)
+
+    print("""start 1 preparation_one_step_right 4 R
+start 2 preparation_one_step_right 5 R
+preparation_copy_right_1 0 preparation_go_back 1 S
+preparation_copy_right_1 1 preparation_copy_right_1 1 R
+preparation_copy_right_1 2 preparation_copy_right_2 1 R
+preparation_copy_right_2 0 preparation_go_back 2 S
+preparation_copy_right_2 1 preparation_copy_right_1 2 R
+preparation_copy_right_2 2 preparation_copy_right_2 2 R
+preparation_go_back 0 preparation_two_step_right 0 R
+preparation_go_back 1 preparation_go_back 1 L
+preparation_go_back 2 preparation_go_back 2 L
+preparation_two_step_right 0 preparation_one_step_right 0 R
+preparation_two_step_right 1 preparation_one_step_right 1 R
+preparation_two_step_right 2 preparation_one_step_right 2 R
+preparation_one_step_right 0 preparation_go_to_start 9 L
+preparation_one_step_right 1 preparation_copy_right_1 0 R
+preparation_one_step_right 2 preparation_copy_right_2 0 R
+preparation_go_to_start 0 preparation_go_to_start 0 L
+preparation_go_to_start 1 preparation_go_to_start 1 L
+preparation_go_to_start 2 preparation_go_to_start 2 L
+preparation_go_to_start 3 preparation_set_2nd_head 3 R
+preparation_go_to_start 4 preparation_set_2nd_head 4 R
+preparation_go_to_start 5 preparation_set_2nd_head 5 R
+preparation_set_2nd_head 0 start_part_2 6 L
+preparation_set_2nd_head 9 quick_fix_make_room_1 0 R
+quick_fix_make_room_1 0 quick_fix_make_room_2 0 R
+quick_fix_make_room_2 0 quick_fix_go_back 9 L
+quick_fix_go_back 0 preparation_set_2nd_head 0 L""")
+    for new_instruction in new_instructions:
+        print(new_instruction)
 
 
 if __name__ == "__main__":
