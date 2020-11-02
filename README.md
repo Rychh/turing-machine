@@ -149,7 +149,7 @@ check 4 2 accept 4 2 S S
 ```
 
 For this task your job is to write a program that translates a two-tape turing Machine into a
-one tape turing machine​ while preserving determinism.
+one tape turing machine while preserving determinism.
 
 ```
 ./translate <path_to_a_two_tape_turing_machine>
@@ -158,7 +158,7 @@ one tape turing machine​ while preserving determinism.
 should output a description of an equivalent one-tape machine.
 
 If the input machine is deterministic (every configuration has at most one applicable
-transition), then the output machine ​ should also be deterministic​ .
+transition), then the output machine should also be deterministic .
 
 The number of transitions in the output machine should depend polynomially on the number
 of transitions in the input machine.

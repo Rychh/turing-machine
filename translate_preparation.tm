@@ -1,0 +1,43 @@
+start 1 preparation_one_step_right 3 R
+start 2 preparation_one_step_right 4 R
+preparation_copy_right_1 0 preparation_go_back 1 S
+preparation_copy_right_1 1 preparation_copy_right_1 1 R
+preparation_copy_right_1 2 preparation_copy_right_2 1 R
+preparation_copy_right_2 0 preparation_go_back 2 S
+preparation_copy_right_2 1 preparation_copy_right_1 2 R
+preparation_copy_right_2 2 preparation_copy_right_2 2 R
+preparation_go_back 0 preparation_two_step_right 0 R
+preparation_go_back 1 preparation_go_back 1 L
+preparation_go_back 2 preparation_go_back 2 L
+preparation_two_step_right 0 preparation_one_step_right 0 R
+preparation_two_step_right 1 preparation_one_step_right 1 R
+preparation_two_step_right 2 preparation_one_step_right 2 R
+preparation_one_step_right 0 preparation_go_to_start 9 L
+preparation_one_step_right 1 preparation_copy_right_1 0 R
+preparation_one_step_right 2 preparation_copy_right_2 0 R
+preparation_go_to_start 0 preparation_go_to_start 0 L
+preparation_go_to_start 1 preparation_go_to_start 1 L
+preparation_go_to_start 2 preparation_go_to_start 2 L
+preparation_go_to_start 3 preparation_set_2nd_head 3 R
+preparation_go_to_start 4 preparation_set_2nd_head 4 R
+preparation_set_2nd_head 0 accept 6 L
+
+go_right_check_2nd_head X go_right_check_2nd_head X R
+go_right_check_2nd_head 9 go_right_check_2nd_head_and_push_9 0 R
+go_right_check_2nd_head_and_push_9 0 go_left_check_2nd_head 9 L
+
+go_left_check_2nd_head 0 go_left_check_2nd_head 0 L
+go_left_check_2nd_head 1 go_left_check_2nd_head 1 L
+go_left_check_2nd_head 2 go_left_check_2nd_head 2 L
+go_left_check_2nd_head 3 go_left_check_2nd_head 3 L
+go_left_check_2nd_head 4 go_left_check_2nd_head 4 L
+go_left_check_2nd_head 5 go_left_check_2nd_head 5 L
+go_left_check_2nd_head 6 go_right_to_1st_head_6 6 R
+go_left_check_2nd_head 7 go_right_to_1st_head_7 7 R
+go_left_check_2nd_head 8 go_right_to_1st_head_8 8 R
+
+go_right_to_1st_head_6 X go_right_to_1st_head_6 X R
+go_right_to_1st_head_6 9 go_right_to_1st_head_6_and_push_9 0 R
+go_right_to_1st_head_6_and_push_9 0 go_left_to_1st_head_6 9 L
+
+tak dla 678
