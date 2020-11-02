@@ -56,6 +56,30 @@ class Move2Tape:
         return str(self) == str(other)
 
 
+new_instructions_forms: List[str] = [
+    "go_right_to_2nd_{lit_02}_{dir_LRS} X go_right_to_2nd_{lit_02}_{dir_LRS}  X R",
+    "go_right_to_2nd_{lit_02}_{dir_LRS} 9 go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 R",
+    "go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 go_left_to_2nd_{lit_02}_{dir_LRS} 9 L",
+
+    "go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} go_left_to_2nd_{lit_02}_{dir_LRS} X L",
+    "go_left_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus_6} move_2nd_{dir_LRS} {lit_02} {dir_LRS}",
+    "move_2nd_{dir_LRS} X set_2nd X {dir_LRS}",
+
+    "set_2nd {lit_02} go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
+
+    "go_left_to_2nd {lit_02_plus_6} go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
+
+    "go_right_to_1st_head_{lit_02_plus_6} X go_right_to_1st_head_{lit_02_plus_6} X R",
+    "go_right_to_1st_head_{lit_02_plus_6} 9 go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 R",
+    "go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 go_left_to_1st_head_{lit_02_plus_6} 9 L",
+
+    "go_left_to_1st_head_{lit_02_plus_6} X go_left_to_1st_head_{lit_02_plus_6} X L",
+
+    "move_1st_{dir_LRS}_2nd_{lit_02}_{dir_LRS} {lit_02} X {dir_LRS} set_1st_{lit_02}_{dir_LRS} X {dir_LRS}",
+    "set_1st_{lit_02}_{dir_LRS} X go_right_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus3} S",
+]
+
+
 def generate_turing_machine(file_name: str) -> Dict[Situation2Tape, List[Move2Tape]]:
     generated_turing_machine: Dict[Situation2Tape, List[Move2Tape]] = {}
     file = open(file_name, 'r')
@@ -96,3 +120,57 @@ def get_all_states(turing_machine: Dict[Situation2Tape, List[Move2Tape]]) -> Lis
     result = list(set(result))
     result.sort()
     return result
+
+
+def main():
+    file_name: str = sys.argv[1]
+
+    assert os.path.isfile(file_name)
+
+    turing_machine = generate_turing_machine(file_name)
+    all_states = get_all_states(turing_machine)
+
+    new_instructions: List[str] = []
+    format_arguments = {}
+    for form in new_instructions_forms:
+        for state in all_states:
+            form_x_state: List[str] = []
+            for lit_02_value in range(3):
+                format_arguments['lit_02'] = lit_02_value
+                format_arguments['lit_02_plus_6'] = Letter(lit_02_value + 6)
+                for lit_05_value in range(6):
+                    format_arguments['lit_05'] = Letter(lit_05_value)
+                    for dir_LRS in DIRS:
+                        format_arguments['dir_LRS'] = dir_LRS
+                        form_x_state.append(state + "::" + form.format(**format_arguments))
+            form_x_state = list(set(form_x_state))
+            form_x_state.sort()
+            new_instructions = new_instructions + form_x_state
+
+    for situation in turing_machine.keys():
+        for move in turing_machine[situation]:
+            format_arguments = {'state': situation.state,
+                                'let1': situation.letter_1,
+                                'let2': situation.letter_2,
+                                'target_state': move.state,
+                                'out_let1': move.letter_1,
+                                'out_let2': move.letter_2,
+                                'dir1': move.direction_1,
+                                'dir2': move.direction_2,
+                                'let1_plus_3': situation.letter_2 + 3,
+                                'let2_plus_6': situation.letter_2 + 6,
+                                }
+
+            normal_state_transition = "{state}::go_left_to_1st_head_{let2_plus_6} {let1_plus_3} " \
+                                      "{target_state}::move_1st_{dir1}_2nd_{out_let2}_{dir1} {out_let1} {dir2}"
+
+            final_state_transition = "{state}::go_left_to_1st_head_{let2_plus_6} {let1_plus_3} " \
+                                     "{target_state} {out_let1} {dir2}"
+
+            state_transition = final_state_transition if move.state in FINAL_STATES else normal_state_transition
+
+            new_instructions.append(state_transition.format(**format_arguments))
+
+
+if __name__ == "__main__":
+    main()
