@@ -22,22 +22,23 @@ preparation_go_to_start 3 preparation_set_2nd_head 3 R
 preparation_go_to_start 4 preparation_set_2nd_head 4 R
 preparation_set_2nd_head 0 accept 6 L
 
-go_right_check_2nd_head X go_right_check_2nd_head X R
-go_right_check_2nd_head 9 go_right_check_2nd_head_and_push_9 0 R
-go_right_check_2nd_head_and_push_9 0 go_left_check_2nd_head 9 L
+go_right_to_2nd_<0-2>_<L/R> X go_right_to_2nd_<0-2>_<L/R>  X R
+go_right_to_2nd_<0-2>_<L/R>  9 go_right_to_2nd_<0-2>_<L/R>_and_push_9 0 R
+go_right_to_2nd_<0-2>_<L/R>_and_push_9 0 go_left_to_2nd_<0-2>_<L/R> 9 L
 
-go_left_check_2nd_head 0 go_left_check_2nd_head 0 L
-go_left_check_2nd_head 1 go_left_check_2nd_head 1 L
-go_left_check_2nd_head 2 go_left_check_2nd_head 2 L
-go_left_check_2nd_head 3 go_left_check_2nd_head 3 L
-go_left_check_2nd_head 4 go_left_check_2nd_head 4 L
-go_left_check_2nd_head 5 go_left_check_2nd_head 5 L
-go_left_check_2nd_head 6 go_right_to_1st_head_6 6 R
-go_left_check_2nd_head 7 go_right_to_1st_head_7 7 R
-go_left_check_2nd_head 8 go_right_to_1st_head_8 8 R
+go_left_to_2nd_<0-2>_<L/R> <0-5> go_left_to_2nd_<0-2>_<L/R> X L
+go_left_to_2nd_<0-2>_<L/R> <6-8> move_2nd_<L/R> <0-2> L/R
+move_2nd_<L/R> X set_2nd X <L/R>
 
-go_right_to_1st_head_6 X go_right_to_1st_head_6 X R
-go_right_to_1st_head_6 9 go_right_to_1st_head_6_and_push_9 0 R
-go_right_to_1st_head_6_and_push_9 0 go_left_to_1st_head_6 9 L
+set_2nd <0-2> go_right_to_1st_head_<6-8> <6-8> R
 
-tak dla 678
+go_left_to_2nd <6-8> go_right_to_1st_head_<6-8> <6-8> R
+
+go_right_to_1st_head_<6-8> X go_right_to_1st_head_<6-8> X R
+go_right_to_1st_head_<6-8> 9 go_right_to_1st_head_<6-8>_and_push_9 0 R
+go_right_to_1st_head_<6-8>_and_push_9 0 go_left_to_1st_head_<6-8> 9 L
+
+go_left_to_1st_head_<6-8> X go_left_to_1st_head_<6-8> X L
+go_left_to_1st_head_<6-8> <3-5> _inny_prefiks_move_1st_<L/R>_2nd_<0-2>_<L/R> <0-2> <L/R>
+move_1st_<L/R>_2nd_<0-2>_<L/R> <0-2> X <L/R> set_1st_<0-2>_<L/R> X <L/R>
+set_1st_<0-2>_<L/R> X go_right_to_2nd_<0-2>_<L/R> (X+3) S

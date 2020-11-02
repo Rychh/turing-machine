@@ -4,9 +4,8 @@ from typing import NewType, Dict, List
 from dataclasses import dataclass
 import os
 
-DEBUG = False
+DEBUG = True
 
-UserId = NewType('UserId', int)
 Letter = NewType('Letter', int)
 State = NewType('State', str)
 Direction = NewType('Direction', str)
