@@ -23,7 +23,7 @@ preparation_go_to_start 4 preparation_set_2nd_head 4 R
 preparation_set_2nd_head 0 accept 6 L
 
 go_right_to_2nd_<0-2>_<L/R> X go_right_to_2nd_<0-2>_<L/R>  X R
-go_right_to_2nd_<0-2>_<L/R>  9 go_right_to_2nd_<0-2>_<L/R>_and_push_9 0 R
+go_right_to_2nd_<0-2>_<L/R> 9 go_right_to_2nd_<0-2>_<L/R>_and_push_9 0 R
 go_right_to_2nd_<0-2>_<L/R>_and_push_9 0 go_left_to_2nd_<0-2>_<L/R> 9 L
 
 go_left_to_2nd_<0-2>_<L/R> <0-5> go_left_to_2nd_<0-2>_<L/R> X L
@@ -39,6 +39,10 @@ go_right_to_1st_head_<6-8> 9 go_right_to_1st_head_<6-8>_and_push_9 0 R
 go_right_to_1st_head_<6-8>_and_push_9 0 go_left_to_1st_head_<6-8> 9 L
 
 go_left_to_1st_head_<6-8> X go_left_to_1st_head_<6-8> X L
+
+########################
 go_left_to_1st_head_<6-8> <3-5> _inny_prefiks_move_1st_<L/R>_2nd_<0-2>_<L/R> <0-2> <L/R>
+########################
+
 move_1st_<L/R>_2nd_<0-2>_<L/R> <0-2> X <L/R> set_1st_<0-2>_<L/R> X <L/R>
 set_1st_<0-2>_<L/R> X go_right_to_2nd_<0-2>_<L/R> (X+3) S

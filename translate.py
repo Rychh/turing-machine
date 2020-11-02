@@ -22,67 +22,59 @@ DIRS = [DIR_STAY, DIR_RIGHT, DIR_LEFT]
 
 
 @dataclass
-class Situation:
+class Situation2Tape:
     state: State
-    letter: Letter
-
-    def end_of_calculations(self) -> bool:
-        return self.state in FINAL_STATES
+    letter_1: Letter
+    letter_2: Letter
 
     def __str__(self):
-        return "Situ: " + " St:" + str(self.state) + " Lt:" + str(self.letter)
+        return "Situ: " + " St:" + str(self.state) + " Lt1:" + str(self.letter_1) + " Lt2:" + str(self.letter_2)
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.state == other.state and self.letter == other.letter
+        return str(self) == str(other)
 
 
 @dataclass
-class Move:
+class Move2Tape:
     state: State
-    letter: Letter
-    direction: Direction
-
-    def accepting_word(self) -> bool:
-        return self.state == State("accept")
-
-    def shift(self) -> int:
-        if self.direction == DIR_RIGHT:
-            return 1
-        elif self.direction == DIR_LEFT:
-            return -1
-        else:
-            return 0
+    letter_1: Letter
+    letter_2: Letter
+    direction_1: Direction
+    direction_2: Direction
 
     def __str__(self):
-        return "Move:" + " St:" + str(self.state) + " Lt:" + str(self.letter) + "Dr:" + str(self.direction)
+        return "Move:" + " St:" + str(self.state) + " Lt1:" + str(self.letter_1) + " Lt2:" + str(
+            self.letter_2) + " Dr1:" + str(self.direction_1) + " Dr2:" + str(self.direction_2)
 
     def __hash__(self):
         return hash(str(self))
 
     def __eq__(self, other):
-        return self.state == other.state and self.letter == other.letter and self.direction == other.direction
+        return str(self) == str(other)
 
 
-def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
-    generated_turing_machine: Dict[Situation, List[Move]] = {}
+def generate_turing_machine(file_name: str) -> Dict[Situation2Tape, List[Move2Tape]]:
+    generated_turing_machine: Dict[Situation2Tape, List[Move2Tape]] = {}
     file = open(file_name, 'r')
     instructions = file.readlines()
     try:
         for instruction in instructions:
             words = instruction.split(" ")
-            current_state: State = State(words[0])
-            currently_seen_letter: Letter = Letter(int(words[1]))
-            target_state: State = State(words[2])
-            letter_to_write: Letter = Letter(int(words[3]))
-            direction: Direction = Direction(words[4][0])
+            # <state> <let1> <let2> <target_state> <out_let1> <out_let2> <dir1> <dir2>
+            state: State = State(words[0])
+            let1: Letter = Letter(int(words[1]))
+            let2: Letter = Letter(int(words[2]))
+            target_state: State = State(words[3])
+            out_let1: Letter = Letter(int(words[4]))
+            out_let2: Letter = Letter(int(words[5]))
+            dir1: Direction = Direction(words[6][0])
+            dir2: Direction = Direction(words[7][0])
 
-            assert direction in DIRS
-            situation = Situation(current_state, currently_seen_letter)
-            move = Move(target_state, letter_to_write, direction)
-
+            situation = Situation2Tape(state, let1, let2)
+            move = Move2Tape(target_state, out_let1, out_let2, dir1, dir2)
             if situation not in generated_turing_machine:
                 generated_turing_machine[situation] = []
 
@@ -93,3 +85,14 @@ def generate_turing_machine(file_name: str) -> Dict[Situation, List[Move]]:
 
     return generated_turing_machine
 
+
+def get_all_states(turing_machine: Dict[Situation2Tape, List[Move2Tape]]) -> List[State]:
+    result: List[State] = []
+    for situation in turing_machine.keys():
+        result += situation.state
+        for move in turing_machine[situation]:
+            result += move.state
+
+    result = list(set(result))
+    result.sort()
+    return result
