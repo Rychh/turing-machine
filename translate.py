@@ -57,26 +57,24 @@ class Move2Tape:
 
 
 new_instructions_forms: List[str] = [
-    "go_right_to_2nd_{lit_02}_{dir_LRS} X go_right_to_2nd_{lit_02}_{dir_LRS}  X R",
-    "go_right_to_2nd_{lit_02}_{dir_LRS} 9 go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 R",
-    "go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 go_left_to_2nd_{lit_02}_{dir_LRS} 9 L",
+    "{state}::go_right_to_2nd_{lit_02}_{dir_LRS} X {state}::go_right_to_2nd_{lit_02}_{dir_LRS}  X R",
+    "{state}::go_right_to_2nd_{lit_02}_{dir_LRS} 9 {state}::go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 R",
+    "{state}::go_right_to_2nd_{lit_02}_{dir_LRS}_and_push_9 0 {state}::go_left_to_2nd_{lit_02}_{dir_LRS} 9 L",
 
-    "go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} go_left_to_2nd_{lit_02}_{dir_LRS} X L",
-    "go_left_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus_6} move_2nd_{dir_LRS} {lit_02} {dir_LRS}",
-    "move_2nd_{dir_LRS} X set_2nd X {dir_LRS}",
+    "{state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} {state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_05} L",
+    "{state}::go_left_to_2nd_{lit_02}_{dir_LRS} {lit_68} {state}::move_2nd_{dir_LRS} {lit_02} {dir_LRS}",
+    "{state}::move_2nd_{dir_LRS} {lit_05} {state}::2nd {lit_05} {dir_LRS}",
 
-    "set_2nd {lit_02} go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
+    "{state}::2nd {lit_02} {state}::go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
 
-    "go_left_to_2nd {lit_02_plus_6} go_right_to_1st_head_{lit_02_plus_6} {lit_02_plus_6} R",
+    "{state}::go_right_to_1st_head_{lit_02_plus_6} {lit_05} {state}::go_right_to_1st_head_{lit_02_plus_6} {lit_05} R",
+    "{state}::go_right_to_1st_head_{lit_02_plus_6} 9 {state}::go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 R",
+    "{state}::go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 {state}::go_left_to_1st_head_{lit_02_plus_6} 9 L",
 
-    "go_right_to_1st_head_{lit_02_plus_6} X go_right_to_1st_head_{lit_02_plus_6} X R",
-    "go_right_to_1st_head_{lit_02_plus_6} 9 go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 R",
-    "go_right_to_1st_head_{lit_02_plus_6}_and_push_9 0 go_left_to_1st_head_{lit_02_plus_6} 9 L",
+    "{state}::go_left_to_1st_head_{lit_02_plus_6} {lit_02_68} {state}::go_left_to_1st_head_{lit_02_plus_6} {lit_02_68} L",
 
-    "go_left_to_1st_head_{lit_02_plus_6} X go_left_to_1st_head_{lit_02_plus_6} X L",
-
-    "move_1st_{dir_LRS}_2nd_{lit_02}_{dir_LRS} {lit_02} X {dir_LRS} set_1st_{lit_02}_{dir_LRS} X {dir_LRS}",
-    "set_1st_{lit_02}_{dir_LRS} X go_right_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus3} S",
+    "{state}::move_1st_{dir_LRS}_2nd_{lit_02}_{dir_LRS} {lit_02_68} {state}::1st_{lit_02}_{dir_LRS} {lit_02_68} {dir_LRS}",
+    "{state}::1st_{lit_02}_{dir_LRS} X {state}::{state}::go_right_to_2nd_{lit_02}_{dir_LRS} {lit_02_plus3} S",
 ]
 
 
@@ -135,14 +133,19 @@ def main():
     for form in new_instructions_forms:
         for state in all_states:
             form_x_state: List[str] = []
+            format_arguments['state'] = state
             for lit_02_value in range(3):
                 format_arguments['lit_02'] = lit_02_value
                 format_arguments['lit_02_plus_6'] = Letter(lit_02_value + 6)
                 for lit_05_value in range(6):
                     format_arguments['lit_05'] = Letter(lit_05_value)
-                    for dir_LRS in DIRS:
-                        format_arguments['dir_LRS'] = dir_LRS
-                        form_x_state.append(state + "::" + form.format(**format_arguments))
+                    format_arguments['lit_02_68'] = \
+                        Letter(lit_05_value) if lit_05_value <= 2 else Letter(8 - lit_05_value)
+                    for lit_68_value in range(6, 9):
+                        format_arguments['lit_68'] = Letter(lit_68_value)
+                        for dir_LRS in DIRS:
+                            format_arguments['dir_LRS'] = dir_LRS
+                            form_x_state.append(state + "::" + form.format(**format_arguments))
             form_x_state = list(set(form_x_state))
             form_x_state.sort()
             new_instructions = new_instructions + form_x_state
