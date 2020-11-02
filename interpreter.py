@@ -4,7 +4,7 @@ from typing import NewType, Dict, List
 from dataclasses import dataclass
 import os
 
-DEBUG = True
+DEBUG = False
 
 Letter = NewType('Letter', int)
 State = NewType('State', str)
@@ -152,8 +152,8 @@ def main():
         assert os.path.isfile(file_name)
 
         input_word = input()
-
-        assert input_word.isdecimal()
+        if len(input_word) == 0:
+            input_word = "00"
 
         inner_tape: List[Letter] = [Letter(int(letter)) for letter in input_word]
         tape: Tape = Tape(inner_tape, limit_of_moves)

@@ -24,6 +24,8 @@ go_left_check_5_skip 3 go_left_check_5_next 3 S
 go_left_check_5_skip 4 go_left_check_5_next 4 S
 go_left_check_5_skip 5 go_left_check_5_skip 5 L
 go_left_check_5_skip 6 go_left_check_5_skip 6 L
+go_left_check_5_skip 7 accept 0 S
+go_left_check_5_skip 8 reject 0 S
 go_left_check_5_next 3 go_left_check_5_next 3 L
 go_left_check_5_next 4 go_left_check_5_next 4 L
 go_left_check_5_next 5 one_step_right_check_5 5 R
@@ -34,6 +36,8 @@ go_left_check_6_skip 3 go_left_check_6_next 3 S
 go_left_check_6_skip 4 go_left_check_6_next 4 S
 go_left_check_6_skip 5 go_left_check_6_skip 5 L
 go_left_check_6_skip 6 go_left_check_6_skip 6 L
+go_left_check_6_skip 7 reject 0 S
+go_left_check_6_skip 8 accept 0 S
 go_left_check_6_next 3 go_left_check_6_next 3 L
 go_left_check_6_next 4 go_left_check_6_next 4 L
 go_left_check_6_next 5 one_step_right_check_6 5 R
